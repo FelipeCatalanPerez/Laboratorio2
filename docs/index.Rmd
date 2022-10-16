@@ -1,0 +1,505 @@
+---
+title: "Los 1000 streamers más populares de Twitch del 2020"
+author: "Felipe Catalan"
+date: "2022-10-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Objetivo General
+
+*Conocer las variables que influyen en el número de seguidores que un
+streamers tiene en Twitch*
+
+## METADATA
+
+Estos datos contienen la información sobre los 1000 streamers de Twitch
+más populares, la data fue extraída el año 2020.
+
+### Variables
+
+- *Channel*: ID del Streamer, son 1000 distintos.
+- *Watch.time.Minutes.*:Tiempo de visualización en minutos.
+- *Stream.time.minutes.*: Tiempo de transmisión en minutos.
+- *Peak.viewers*:Pico de espectadores.
+- *Average.viewers*: Espectadores promedio.
+- *Followers*: Seguidores.
+- *Followers.gained*: Seguidores ganados.
+- *Views.gained*: Visualizaciones obtenidas.
+- *Partnered*: Dummy de auspiciadores.
+- *Mature*: Dummy de (+18) contenido explicito.
+- *Language*: 21 lenguajes diferentes.
+
+#### Data
+
+```{r}
+setwd("~/GitHub/Laboratorio2/docs")
+db <- read.csv("twitchdata-update.csv",fileEncoding="latin1")
+
+#Elimino notacion cientifica
+options(scipen=999)
+
+```
+
+##### Librerias a usar
+
+```{r}
+#install.packages("wordcloud2")
+
+library("ggpubr")
+library("ggplot2")
+library("corrplot")
+library("dplyr")
+library("tidyverse")
+library("readr")
+library("wordcloud2")
+```
+
+## 1.- Análisis descriptivo
+
+```{r}
+str(db)
+
+names(db) <- c("Canal", "T_VisulizaMinu", "Tie_TransmiMinu", "MaxEspectadores",
+               "PromEspectadores", "Seguidores","SeguiGanados", "Visua_obtenidas", 
+               "Auspiciadores", "PublicoMaduro", "Lenguaje")
+
+db1 <- db[,c(2,3,4,5,6,7,8,9,10,11)]
+
+# Para correlacion
+db1$Auspiciadores <- as.factor(db1$Auspiciadores)
+db1$PublicoMaduro <- as.factor(db1$PublicoMaduro)
+db1$Lenguaje <- as.factor(db1$Lenguaje)
+
+db1$Auspiciadores <- as.numeric(db1$Auspiciadores)
+db1$PublicoMaduro <- as.numeric(db1$PublicoMaduro)
+db1$Lenguaje <- as.numeric(db1$Lenguaje)
+
+# Agrupando x Lenguaje
+db3 <- db
+
+db3$Lenguaje <- gsub("German","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Chinese","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Turkish","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Italian","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Polish","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Thai","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Japanese","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Czech","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Arabic","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Hungarian","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Finnish","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Greek","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Other","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Slovak","Otros",db3$Lenguaje)
+db3$Lenguaje <- gsub("Swedish","Otros",db3$Lenguaje)
+
+# Auspiciadores
+db$Auspiciadores <- gsub("True","Con Auspiciadores",db$Auspiciadores)
+db$Auspiciadores <- gsub("False","Sin Auspiciadores",db$Auspiciadores)
+
+# PublicoMaduro
+db$PublicoMaduro <- gsub("True","Con Restricción",db$PublicoMaduro)
+db$PublicoMaduro <- gsub("False","Sin Restricción",db$PublicoMaduro)
+
+str(db3)
+
+```
+
+### Resumen de Estadisticos
+
+```{r}
+names(db)
+
+T_VisulizaMinu <- db %>%
+  summarise(
+    Variable="T_VisulizaMinu",
+    min=min(T_VisulizaMinu),
+    max=max(T_VisulizaMinu),
+    promedio=mean(T_VisulizaMinu),
+    Mediana=median(T_VisulizaMinu),
+    Desviacion=sd(T_VisulizaMinu))
+
+Tie_TransmiMinu <- db %>%
+  summarise(
+    Variable="Tie_TransmiMinu",
+    min=min(Tie_TransmiMinu),
+    max=max(Tie_TransmiMinu),
+    promedio=mean(Tie_TransmiMinu),
+    Mediana=median(Tie_TransmiMinu),
+    Desviacion=sd(Tie_TransmiMinu))
+
+MaxEspectadores <- db %>%
+  summarise(
+    Variable="MaxEspectadores",
+    min=min(MaxEspectadores),
+    max=max(MaxEspectadores),
+    promedio=mean(MaxEspectadores),
+    Mediana=median(MaxEspectadores),
+    Desviacion=sd(MaxEspectadores))
+
+PromEspectadores <- db %>%
+  summarise(
+    Variable="PromEspectadores",
+    min=min(PromEspectadores),
+    max=max(PromEspectadores),
+    promedio=mean(PromEspectadores),
+    Mediana=median(PromEspectadores),
+    Desviacion=sd(PromEspectadores))
+
+Seguidores <- db %>%
+  summarise(
+    Variable="Seguidores",
+    min=min(Seguidores),
+    max=max(Seguidores),
+    promedio=mean(Seguidores),
+    Mediana=median(Seguidores),
+    Desviacion=sd(Seguidores))
+
+SeguiGanados <- db %>%
+  summarise(
+    Variable="SeguiGanados",
+    min=min(SeguiGanados),
+    max=max(SeguiGanados),
+    promedio=mean(SeguiGanados),
+    Mediana=median(SeguiGanados),
+    Desviacion=sd(SeguiGanados))
+
+Visua_obtenidas <- db %>%
+  summarise(
+    Variable="Visua_obtenidas",
+    min=min(Visua_obtenidas),
+    max=max(Visua_obtenidas),
+    promedio=mean(Visua_obtenidas),
+    Mediana=median(Visua_obtenidas),
+    Desviacion=sd(Visua_obtenidas))
+
+TablaResumen <- rbind(T_VisulizaMinu, Tie_TransmiMinu, MaxEspectadores, PromEspectadores,
+                      Seguidores, SeguiGanados, Visua_obtenidas)
+
+
+TablaResumen
+
+```
+
+## 2.- Análisis gráficos
+
+### 2.1.- Graficos de 1 variable, son histogramas y barras
+*T_VisulizaMinu*
+```{r}
+# 1era variable "T_VisulizaMinu" --> Grafico Cortado x Outliers
+
+### Tiempo de visualizacion en minutos, hay muchos outliers
+### Sesgada a la derecha, hay pocos Streamers con una gran cantidad de visualizaciones
+### Los outliers en este caso son los Streamers mas populares
+
+ggplot(db,aes(x = T_VisulizaMinu))+ 
+  geom_histogram(fill="lightskyblue3", color="black")+
+  scale_x_continuous(name = "Minutos de visualización", breaks = seq(0,1600000000,100000000), lim = c(0,1600000000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE)) + 
+  scale_y_continuous(name = "Cantidad de Streamers", breaks = seq(0,300,30), lim = c(0,300))+
+  ggtitle(label = "Tiempo de visualización en minutos")+
+  geom_vline(aes(xintercept=median(T_VisulizaMinu)),color="red", linetype="dotted", size=1)+
+  geom_vline(aes(xintercept=mean(T_VisulizaMinu)),color="blue", linetype="dashed", size=1)+
+  theme(axis.text.x = element_text(angle=45, hjust = 1))
+```
+ 
+*Tie_TransmiMinu*
+```{r}
+# 2da variable "Tie_TransmiMinu" --> Grafico Cortado x Outliers
+
+# El tiempo de transmisión tiene una distribucion mas normal 
+# outliers: Stremers que realizan transmiciones mucho mas largas de lo normal
+ggplot(db,aes(x = Tie_TransmiMinu))+ 
+  geom_histogram(fill="lightskyblue3", color="black")+
+  scale_x_continuous(name = "Minutos de transmisión", breaks = seq(0,10000000,30000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE)) + 
+  scale_y_continuous(name = "Cantidad de Streamers", breaks = seq(0,200,10))+
+  ggtitle(label = "Tiempo de transmisión en minutos")+
+  geom_vline(aes(xintercept=median(Tie_TransmiMinu)),color="red", linetype="dotted", size=1)+
+  geom_vline(aes(xintercept=mean(Tie_TransmiMinu)),color="blue", linetype="dashed", size=1)+
+  theme(axis.text.x = element_text(angle=45, hjust = 1))
+```
+
+*Auspiciadores*
+```{r}
+# 8va variable "Auspiciadores"
+
+#### La gran mayoria si tiene Auspiciadores
+
+ggplot(db,aes(x = factor(Auspiciadores)))+ 
+  geom_bar(fill=c("lightskyblue3","white"), color="black")+
+  scale_x_discrete(name = "Auspiciadores") + 
+  scale_y_continuous(name = "Cantidad de Streamers", breaks = seq(0,1000,100), lim = c(0,1000),
+                    labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  ggtitle(label = "Streamers con Auspiciadores")
+```
+
+*PublicoMaduro*
+```{r}
+# 9na variable "PublicoMaduro"
+
+#### La gran mayoria no tiene restriccion de Publico Maduro
+
+ggplot(db,aes(x = factor(PublicoMaduro)))+ 
+  geom_bar(fill=c("white","lightskyblue3"), color="black")+
+  scale_x_discrete(name = "Publico Maduro") + 
+  scale_y_continuous(name = "Cantidad de Streamers", breaks = seq(0,800,80), lim = c(0,800),
+                    labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  ggtitle(label = "Streamers con restriccion de Publico Maduro")
+```
+
+### 2.2.- Nube de Palabras 
+*Lenguaje*
+```{r}
+# variable "Lenguaje"
+#### Es muy grande la diferencia de Idioma, casi todos hablan ingles
+#### Se deja fuera el ingles para guardar las proporciones
+
+db_lenguaje <- db %>% 
+    group_by(Lenguaje) %>%
+    count(Lenguaje)
+
+nube1 <- wordcloud2(db_lenguaje, color='random-dark', minRotation = -pi/6, maxRotation = -pi/6, rotateRatio = 1)
+
+nube1
+```
+
+```{r}
+# variable "Lenguaje"
+#### Es muy grande la diferencia de Idioma, casi todos hablan ingles
+#### Se agrega el ingles para guardar las proporciones
+
+db_lenguaje <- db %>% 
+    group_by(Lenguaje) %>%
+    count(Lenguaje)
+
+nube2 <- wordcloud2(db_lenguaje, size = 3.8, color='random-dark', minRotation = -pi/6, maxRotation = -pi/6, rotateRatio = 1)
+
+nube2
+```
+
+*ChannelxSeguiGanados*
+```{r}
+# graficos de 2 variables
+db_Channel <- db[,c(1,6)]
+db_Channel <- db_Channel[order(db_Channel$Seguidores, decreasing = TRUE),]
+names(db_Channel) <- c("word","freq")
+#as.numeric(db_Channel$freq)
+nube3 <- wordcloud2(db_Channel, size = 0.6, color='random-dark', minRotation = -pi/6, maxRotation = -pi/6, rotateRatio = 1)
+
+nube3
+```
+
+###2.3.- Box-Plot
+
+*Seguidores / Sin Outliers*
+```{r}
+# Los Seguidores tienen una dispercion que concentra al 50%  del totalentre los 
+# 150.000 y 600.000 aprox, con un gran numero de outliers que llega hasta 8.938.903
+ggplot(db3, aes(x=Seguidores)) + 
+  geom_boxplot(fill="lightskyblue3",color="black")+
+  scale_x_continuous(breaks = seq (0,4000000,100000),limits = c(0,2400000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  theme_bw()+
+  labs(title = "Box-plot de los Seguidores",
+       x = "Dispersión de los Seguidores")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(axis.text.x = element_text(angle=45, hjust = 1))
+
+```
+ 
+*SeguiGanados y Lenguaje / Sin Outliers*
+```{r}
+# Seguidores en Ingles y español tiene valores outliers muy altos.
+# Lo que significa que unos pocos Streamers que hablan estos dialectos tienen muchos seguidores.
+# El lenguaje predominante es las ingles con 485 obs casi la mitad de la data
+# El Koreano detaca por tener una pequeña dispercion de sus datos, lo que significa que estos streamers tienen cantidades similares de seguidores
+ggplot(db3, aes(x=Seguidores, y=Lenguaje, fill=Lenguaje)) + 
+  geom_boxplot(color="black")+
+  stat_summary(fun = "mean", 
+               colour = "red", 
+               size = 1, 
+               geom = "point")+
+  scale_x_continuous(breaks = seq (0,3400000,200000),limits = c(0,3400000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  theme_bw()+
+  labs(title = "Box-plot de los seguidores por lenguaje",
+       subtitle = "Sin Outliers",
+       x = "Dispersión de los seguidores",
+       y = "")+
+  scale_fill_brewer("Lenguaje")+
+  theme(axis.text.x = element_text(angle=45, hjust = 1))
+
+```
+
+*T_VisulizaMinu / Sin Outliers*
+```{r}
+# El 50% de la data se concentra 160 y 400 millones aprox, siendo el valor max 
+# de 6.196.161.750
+ggplot(db3, aes(x=T_VisulizaMinu)) + 
+  geom_boxplot(fill="lightskyblue3",color="black")+
+  scale_x_continuous(breaks = seq (0,1600000000,80000000),limits = c(0,1600000000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  theme_bw()+
+  labs(title = "Box-plot del tiempo de visualización en minutos",
+       x = "Dispersión de la visualización  en minutos")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(axis.text.x = element_text(angle=45, hjust = 1))
+
+```
+
+*PromEspectadores / Sin Outliers*
+```{r}
+#PromEspectadores concentra el 50% de los datos entre 1.400 y 4.200, con un maximo de 147.643
+ggplot(db3, aes(x=PromEspectadores)) + 
+  geom_boxplot(fill="lightskyblue3",color="black")+
+  scale_x_continuous(breaks = seq (0,20000,700),limits = c(0,20000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  theme_bw()+
+  labs(title = "Box-plot del promedio de espectadores",
+       x = "Dispersión  del promedio de espectadores")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(axis.text.x = element_text(angle=45, hjust = 1))
+
+```
+
+*PromEspectadores y Lenguaje / Sin Outliers*
+
+```{r}
+# PromEspectadores en ruso e ingles tiene valores outliers muy altos.
+ggplot(db3, aes(x=PromEspectadores, y=Lenguaje, fill=Lenguaje)) + 
+  geom_boxplot(color="black")+
+  stat_summary(fun = "mean", 
+               colour = "red", 
+               size = 1, 
+               geom = "point")+
+  scale_x_continuous(breaks = seq (0,25000,1000),limits = c(0,25000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  theme_bw()+
+  labs(title = "Box-plot del promedio de espectadores por Países",
+       x = "Dispercion del promedio de espectadores",
+       y = "Países")+
+  theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_brewer("Países")+
+  theme(axis.text.x = element_text(angle=45, hjust = 1))
+
+```
+
+### 2.4.- Matriz de correlacion
+
+```{r,fig.width = 15}
+res <- cor(db1, use = "pairwise.complete.obs",
+method = "pearson")
+
+# colores: 'RdBu', 'BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdYlBu'
+corrplot(res[,c(1:10)], type = "upper", method= "square", tl.col = "black",
+         addCoef.col = 'black', col = COL2('BrBG'))
+
+```
+
+### 2.5.- variables de alta correlacion
+
+```{r}
+dbSinOutliers <- db3
+
+dbSinOutliers <- dbSinOutliers[dbSinOutliers$Seguidores<4000000,]
+dbSinOutliers <- dbSinOutliers[dbSinOutliers$T_VisulizaMinu<3000000000,]
+dbSinOutliers <- dbSinOutliers[dbSinOutliers$MaxEspectadores<300000,]
+
+dbSinOutliers <- dbSinOutliers[dbSinOutliers$PromEspectadores<100000,]
+dbSinOutliers <- dbSinOutliers[dbSinOutliers$SeguiGanados<2520765,]
+dbSinOutliers <- dbSinOutliers[dbSinOutliers$Visua_obtenidas<80500786,]
+
+
+```
+
+*SeguiGanados y T_VisulizaMinu*
+```{r}
+sp <- ggscatter(dbSinOutliers, x = "Seguidores" , y = "T_VisulizaMinu",
+                add = "reg.line",  
+                add.params = list(color = "blue", fill = "lightgray"), 
+                conf.int = FALSE)
+sp+stat_cor(method = "pearson")+
+  theme_bw()+
+  scale_x_continuous(breaks = seq (0,9000000,300000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  scale_y_continuous(breaks = seq (0,6000000000,300000000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  labs(title = "Regresión entre Seguidores ganados y tiempo de visualización en minutos",
+       x = "Seguidores ganados",
+       y = "Visualización en minutos")+
+  theme(axis.text.x = element_text(angle=45, hjust = 1))
+```
+
+*SeguiGanados,MaxEspectadores*
+```{r}
+sb <- ggscatter(dbSinOutliers, x = "Seguidores" , y = "MaxEspectadores",
+                add = "reg.line",  
+                add.params = list(color = "blue", fill = "lightgray"), 
+                conf.int = FALSE)
+sb+stat_cor(method = "pearson")+
+  theme_bw()+
+  scale_x_continuous(breaks = seq (0,12000000,200000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  scale_y_continuous(breaks = seq (0,2000000,30000),
+                     labels=function(x) format(x, big.mark = ".", scientific = FALSE))+
+  labs(title = "Regresión entre Seguidores ganados y Máximo de espectadores",
+       x = "Seguidores ganados",
+       y = "Máximo de espectadores")+
+  theme(axis.text.x = element_text(angle=45, hjust = 1))
+```
+
+## 3.- Modelos
+
+### 3.1.-SeguiGanados=(T_VisulizaMinu)+(MaxEspectadores)
+
+##### Modelo con todas las variables
+```{r}
+regr1 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+MaxEspectadores+PromEspectadores+
+              Visua_obtenidas+factor(Auspiciadores)+factor(PublicoMaduro)+
+              factor(Lenguaje), data = dbSinOutliers, na.action = na.omit)
+
+summary(regr1)
+```
+
+#####MaxEspectadores es mas bajo
+```{r}
+regr2 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+MaxEspectadores+
+              Visua_obtenidas+factor(Auspiciadores)+factor(PublicoMaduro)+
+              factor(Lenguaje), data = dbSinOutliers, na.action = na.omit)
+
+summary(regr2)
+```
+
+##### PromEspectadores tiene un R2 mas alto
+```{r}
+regr3 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+PromEspectadores+
+              Visua_obtenidas+factor(Auspiciadores)+factor(PublicoMaduro)+
+              factor(Lenguaje), data = dbSinOutliers, na.action = na.omit)
+
+summary(regr3)
+```
+
+##### PromEspectadores tiene un R2 mas alto, sacamos Auspiciadores por no ser significativa
+```{r}
+#
+regr4 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+PromEspectadores+
+              Visua_obtenidas+factor(PublicoMaduro)+factor(Lenguaje),
+            data = dbSinOutliers, na.action = na.omit)
+
+summary(regr4)
+```
+
+##### PromEspectadores tiene un R2 mas alto, sacamos Auspiciadores por no ser significativa
+```{r}
+#
+
+regr5 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+PromEspectadores+
+              factor(PublicoMaduro)+factor(Lenguaje), data = dbSinOutliers, na.action = na.omit)
+
+summary(regr5)
+```
