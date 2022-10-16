@@ -60,7 +60,7 @@ library("wordcloud2")
 
 ## 1.- Análisis descriptivo
 
-```{r}
+```{r,echo=FALSE}
 str(db)
 
 names(db) <- c("Canal", "T_VisulizaMinu", "Tie_TransmiMinu", "MaxEspectadores",
@@ -111,7 +111,7 @@ str(db3)
 
 ### Resumen de Estadisticos
 
-```{r}
+```{r,echo=FALSE}
 names(db)
 
 T_VisulizaMinu <- db %>%
@@ -362,7 +362,7 @@ ggplot(db3, aes(x=PromEspectadores, y=Lenguaje, fill=Lenguaje)) +
 
 ### 2.4.- Matriz de correlacion
 
-```{r,echo=FALSE,include=TRUE,fig.height=10,fig.width=14}
+```{r,include=TRUE,fig.height=10,fig.width=14}
 res <- cor(db1, use = "pairwise.complete.obs",
 method = "pearson")
 
