@@ -253,35 +253,6 @@ ggplot(db,aes(x = factor(PublicoMaduro)))+
 ```
 
 ### 2.2.- Nube de Palabras 
-*Lenguaje*
-```{r}
-# variable "Lenguaje"
-#### Es muy grande la diferencia de Idioma, casi todos hablan ingles
-#### Se deja fuera el ingles para guardar las proporciones
-
-db_lenguaje <- db %>% 
-    group_by(Lenguaje) %>%
-    count(Lenguaje)
-
-nube1 <- wordcloud2(db_lenguaje, color='random-dark', minRotation = -pi/6, maxRotation = -pi/6, rotateRatio = 1)
-
-nube1
-```
-
-```{r}
-# variable "Lenguaje"
-#### Es muy grande la diferencia de Idioma, casi todos hablan ingles
-#### Se agrega el ingles para guardar las proporciones
-
-db_lenguaje <- db %>% 
-    group_by(Lenguaje) %>%
-    count(Lenguaje)
-
-nube2 <- wordcloud2(db_lenguaje, size = 3.8, color='random-dark', minRotation = -pi/6, maxRotation = -pi/6, rotateRatio = 1)
-
-nube2
-```
-
 *ChannelxSeguiGanados*
 ```{r}
 # graficos de 2 variables
@@ -391,7 +362,7 @@ ggplot(db3, aes(x=PromEspectadores, y=Lenguaje, fill=Lenguaje)) +
 
 ### 2.4.- Matriz de correlacion
 
-```{r,fig.width = 15}
+```{r,echo=FALSE,include=TRUE,fig.height=10,fig.width=14}
 res <- cor(db1, use = "pairwise.complete.obs",
 method = "pearson")
 
