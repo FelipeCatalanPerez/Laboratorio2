@@ -44,9 +44,7 @@ options(scipen=999)
 
 ```
 
-##### Librerias a usar
-
-```{r}
+```{r,echo=FALSE, include=FALSE}
 #install.packages("wordcloud2")
 
 library("ggpubr")
@@ -265,7 +263,9 @@ nube3 <- wordcloud2(db_Channel, size = 0.6, color='random-dark', minRotation = -
 nube3
 ```
 
-###2.3.- Box-Plot
+En esta gráfica se observan los Streamers con un tamaño qué se debe a la cantidad de seguidores de los mismos
+
+### 2.3.- Box-Plot
 
 *Seguidores / Sin Outliers*
 ```{r}
@@ -437,8 +437,8 @@ regr1 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+MaxEspectadores+PromEspe
 summary(regr1)
 ```
 
-#####MaxEspectadores es mas bajo
-```{r}
+
+```{r,echo=FALSE, include=FALSE}
 regr2 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+MaxEspectadores+
               Visua_obtenidas+factor(Auspiciadores)+factor(PublicoMaduro)+
               factor(Lenguaje), data = dbSinOutliers, na.action = na.omit)
@@ -446,8 +446,7 @@ regr2 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+MaxEspectadores+
 summary(regr2)
 ```
 
-##### PromEspectadores tiene un R2 mas alto
-```{r}
+```{r,echo=FALSE, include=FALSE}
 regr3 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+PromEspectadores+
               Visua_obtenidas+factor(Auspiciadores)+factor(PublicoMaduro)+
               factor(Lenguaje), data = dbSinOutliers, na.action = na.omit)
@@ -455,8 +454,7 @@ regr3 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+PromEspectadores+
 summary(regr3)
 ```
 
-##### PromEspectadores tiene un R2 mas alto, sacamos Auspiciadores por no ser significativa
-```{r}
+```{r,echo=FALSE, include=FALSE}
 #
 regr4 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+PromEspectadores+
               Visua_obtenidas+factor(PublicoMaduro)+factor(Lenguaje),
@@ -465,7 +463,7 @@ regr4 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+PromEspectadores+
 summary(regr4)
 ```
 
-##### PromEspectadores tiene un R2 mas alto, sacamos Auspiciadores por no ser significativa
+##### Modelo final
 ```{r}
 #
 
@@ -474,3 +472,21 @@ regr5 <- lm(Seguidores ~ T_VisulizaMinu+Tie_TransmiMinu+PromEspectadores+
 
 summary(regr5)
 ```
+El modelo presentado de regresión múltiple explica en que medida la variable **seguidores** es explicada por *el tiempo de visualización, el tiempo de transmisión, el promedio de los espectadores, las variables dummy publico maduro y lenguaje*.
+
+- Se puede afirmar qué por cada 1 minuto de visualización los seguidores aumentan en 0,0006
+-	Por cada minuto de visualización los seguidores disminuyen en 0,8396.
+-	Cada vez qué aumente en 1 la cantidad promedio de espectadores el número de seguidores aumentará en 24,5460.
+-	Si el Streamer comienza a tener restricción de público sus seguidores disminuyen en 98723,7747.
+-	Si el Streamer cambia su lenguaje del Inglés al Francés disminuye sus seguidores en 114749,1401  
+-	Si el Streamer cambia su lenguaje del Inglés al Koreano disminuye sus seguidores en 322970,2544   
+-	Si el Streamer cambia su lenguaje del Inglés al Otro disminuye sus seguidores en 139531,0682   
+-	Si el Streamer cambia su lenguaje del Inglés al Portugues aumenta sus seguidores en 5644,8431   
+-	Si el Streamer cambia su lenguaje del Inglés al Ruso disminuye sus seguidores en 280222,5684   
+-	Si el Streamer cambia su lenguaje del Inglés al Español aumenta sus seguidores en 20810,7575
+
+*El modelo se ajusta en un 41,82%*
+
+
+
+
