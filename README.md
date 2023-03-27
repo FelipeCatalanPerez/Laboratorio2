@@ -1,7 +1,12 @@
 # Laboratorio2
-El siguiente laboratorio busca aplicar análisis gráficos, estadística descriptiva e inferencial.
+El siguiente laboratorio busca aplicar análisis gráficos, estadística descriptiva e inferencial. Al final se presenta un modelo de regresión lineal múltiple.
 
-<h3 align="left">Para ver mi trabajo has clic en la imagen:</h3>
-<p align="left">
-<a href="https://felipecatalanperez.github.io/Laboratorio2/" target="blank"><img align="center" src="https://thumbs.dreamstime.com/b/icono-de-documento-del-s%C3%ADmbolo-azul-en-un-fondo-blanco-137831189.jpg" alt="https://felipecatalanperez.github.io/Laboratorio2/" height="70" width="70" /></a>
-</p>
+La [base de datos](https://www.kaggle.com/datasets/aayushmishra1512/twitchdata) utilizada fue Los 1000 streamers más populares de Twitch.
+
+- Histogramas.
+- Gráficos de Barras.
+- Nubes de Palabras.
+- Box-Plot.
+- Matriz de correlación.
+
+[Documento RMD](https://felipecatalanperez.github.io/Laboratorio2/)

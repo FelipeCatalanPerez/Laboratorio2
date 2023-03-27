@@ -1,5 +1,5 @@
 ---
-title: "Los 1000 streamers más populares de Twitch del 2020"
+title: "Laboratorio 2: Los 1000 streamers más populares de Twitch del 2020"
 author: "Felipe Catalan"
 date: "2022-10-07"
 output: html_document
